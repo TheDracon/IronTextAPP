@@ -16,15 +16,5 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		if (getSupportActionBar() != null) getSupportActionBar().hide();
-//		String path = "android.resource://" + getPackageName() + "/" + R.raw.logo_anim;
-//		Uri uri = Uri.parse(path);
-//		video= findViewById(R.id.loadingAnimation);
-//		video.setVideoURI(uri);
-//		video.setOnCompletionListener((mp -> {
-//			video.start();
-//		}));
-//
-//		video.start();
-//		video.requestFocus();
 	}
 }
