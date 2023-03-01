@@ -4,11 +4,11 @@ public class Message {
 
 
 	private final String content;
-	private final User sender;
+	private final String sender;
 	private final boolean isMine;
 	private final long timestamp;
 
-	public Message(String content, User sender, boolean isMine, long timestamp){
+	public Message(String content, String sender, boolean isMine, long timestamp){
 		this.content = content;
 		this.sender = sender;
 		this.isMine = isMine;
@@ -20,7 +20,7 @@ public class Message {
 		return content;
 	}
 
-	public User getSender() {
+	public String getSender() {
 		return sender;
 	}
 

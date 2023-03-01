@@ -12,83 +12,108 @@ import java.util.UUID;
 public class Client {
     private DataOutputStream output;
     private DataInputStream input;
-
     private final String host;
     private final int port;
     private Socket socket;
+
+    private boolean isLoggedIn;
+
 
     public Client(String host, int port){
         this.host = host;
         this.port = port;
     }
+    public void closeConnection(){
+        if (socket != null){
+            try {
+                socket.close();
+            } catch (IOException e){
+                throw new RuntimeException(e);
+            }
+            this.isLoggedIn = false;
+        } else {
+            throw new RuntimeException("Socket is null");
+        }
+    }
+    public boolean isConnected(){
+        if (socket != null){
+            return socket.isConnected();
+        }
+        return false;
+    }
 
-
+    public boolean isLoggedIn(){
+        return isLoggedIn;
+    }
     // Starts the connection with the server
-    public Socket startConnection() throws Exception {
-        Socket socket = new Socket(host, port);
-        this.socket = socket;
-        return socket;
+    public void startConnection() {
+        try {
+            this.socket = new Socket(host, port);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 
     // Authenticates using token
-    private void tokenAuth() throws Exception {
-        output.writeInt(0);
-        output.writeUTF("5V71I1LDi0yñI2ñSjYDkOdhNJBui6Git");
-        int resultCode = input.readInt();
-        System.out.println("EXIT CODE: " + resultCode);
-        if (resultCode == 0){
-            Thread.sleep(500);
-            System.out.println("sending request");
-            sendEvent(0, socket, "Message from 0");
-            sendEvent(0, socket, "Message from 0 but twice");
-            sendEvent(0, socket, "Message from 0 and 3 times one");
+    public int tokenAuth(String token) {
+        try {
+            output.writeInt(0);
+            output.writeUTF(token);
+            int resultCode = input.readInt();
+            if (resultCode == 0){
+                isLoggedIn = true;
+            }
+            return resultCode;
+        } catch (Exception e){
+            e.printStackTrace();
         }
+        return -1;
     }
 
     // Create account
 
-    private void passwordAuth() throws Exception {
-        output.writeInt(1);
-        //email
-        output.writeUTF("GMAIL HERE");
-        //password
-        output.writeUTF("PASSWORD HERE");
+    public int passwordAuth(String email, String password){
+        try {
+            output.writeInt(1);
+            //email
+            output.writeUTF(email);
+            //password
+            output.writeUTF(password);
 
-        // You can see all codes iin AuthExitCodes.java
-        int resultCode = input.readInt();
+            // You can see all codes iin AuthExitCodes.java
+            int resultCode = input.readInt();
 
-
-        // If success...
-        if (resultCode == 0){
-            String newToken = input.readUTF();
-
-            Thread.sleep(1000);
-
-            sendEvent(RequestTypes.SEND_MESSAGE, socket, "message");
-
+            // If success...
+            if (resultCode == 0){
+                isLoggedIn = true;
+            }
+            return resultCode;
+        } catch (Exception e){
+            throw new RuntimeException(e);
         }
-
     }
 
 
     // Loggin with password
 
-    private void registerAcc() throws Exception {
-        output.writeInt(2);
-        output.writeUTF("thedracon");
-        //email
-        output.writeUTF("vicvarcas2007@gmail.com");
-        //password
-        output.writeUTF("Proyecto103");
-        int resultCode = input.readInt();
-
-        if (resultCode == 0){
-
+    public int registerAcc(String username, String email, String password){
+        try {
+            output.writeInt(2);
+            output.writeUTF(username);
+            //email
+            output.writeUTF(email);
+            //password
+            output.writeUTF(password);
+            int resultCode = input.readInt();
+            try {
+                socket.close();
+            } catch (Exception ingore){}
+            return resultCode;
+        } catch (Exception e){
+            throw new RuntimeException(e);
         }
-
     }
-
 
 
     // TO SEND THE DATA dataList
@@ -117,5 +142,50 @@ public class Client {
 
     public String getHost() {
         return host;
+    }
+    public void listenForPackets(){
+        new Thread(() ->{
+            while (true){
+                if (socket.isClosed()) break;
+                try {
+                    DataInputStream input = new DataInputStream(socket.getInputStream());
+
+                    // 0 = one new message | 1 = x new messages
+                    int requestType = input.readInt();
+                    if (requestType == 0){
+                        String message = input.readUTF();
+                        String sender = input.readUTF();
+                        long timestamp = input.readLong();
+                        Message newMessage = new Message(message, sender,(sender.equals(Main.getMyUsername())), timestamp);
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        String formattedDate = sdf.format(new Date(newMessage.getTimestamp()));
+                        System.out.println(" MESSAGE: '" +newMessage.getContent() +"' BY: '" + newMessage.getSender() + "' ON: " + formattedDate);
+
+
+
+                        // Do something
+
+                    } else if (requestType == 1){
+                        int amountOfRows = input.readInt();
+                        ArrayList<Message> messages = new ArrayList<>();
+                        for (int i = 0; i < amountOfRows; i++) {
+                            String content = input.readUTF();
+                            String sender = input.readUTF();
+                            long timestamp = input.readLong();
+                            Message currentMessage = new Message(content, sender, (sender.equals(Main.getMyUsername())), timestamp);
+                            messages.add(currentMessage);
+                        }
+                        for (Message message : messages){
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String formattedDate = sdf.format(new Date(message.getTimestamp()));
+                            System.out.println("MESSAGE: '" +message.getContent() +"' BY: '" + message.getSender() + "' ON: " + formattedDate);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 }

@@ -6,6 +6,7 @@
                 android:paddingRight="15dp"
                 android:paddingLeft="60dp"
                 android:clipToPadding="false">
+                android:screenOrientation="portrait"
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -19,16 +19,16 @@ public class MessageAdapter extends BaseAdapter {
 	Context context;
 
 	public MessageAdapter(Context context){
-		Message message = new Message("content1", new User("juan", "#ff0000"), false, 100);
-		Message message1 = new Message("content1", new User("juan", "#ff0000"), false, 100);
-		Message message2 = new Message("content1", new User("yo", "#ff0000"), true, 100);
-		Message message3 = new Message("content1asdasd \n asdnaksg \na sidias\n aishgiibiaiisgfb81 \n aisgcuiagsiid \n", new User("juan", "#ff0000"), false, 100);
-		Message message4 = new Message("content1asdasd \n asdnaksg \na sidias\n aishgiibiaiisgfb81 \n aisgcuiagsiid \n", new User("juan", "#ff0000"), false, 100);
+		Message message = new Message("content1", "Juan", false, 100);
+		Message message1 = new Message("content1","Mario", false, 100);
+		Message message2 = new Message("content1", "Tu", true, 100);
+		Message message3 = new Message("content1asdasd \n asdnaksg \na sidias\n aishgiibiaiisgfb81 \n aisgcuiagsiid \n", "Alvaro", false, 100);
+		Message message4 = new Message("content1asdasd \n asdnaksg \na sidias\n aishgiibiaiisgfb81 \n aisgcuiagsiid \n", "Joel", false, 100);
 
-		Message message5 = new Message("content1", new User("juan", "#ff0000"), false, 100);
-		Message message6 = new Message("content1", new User("juan", "#ff0000"), false, 100);
-		Message message7 = new Message("content1", new User("juan", "#ff0000"), false, 100);
-		Message message8 = new Message("content1", new User("juan", "#ff0000"), false, 100);
+		Message message5 = new Message("content1", "Víctor", false, 100);
+		Message message6 = new Message("soy gay", "un gay", false, 100);
+		Message message7 = new Message("content1", "Lucas", false, 100);
+		Message message8 = new Message("content1", "IdkMen", false, 100);
 
 		messages.add(message);
 		messages.add(message1);
@@ -94,7 +94,7 @@ public class MessageAdapter extends BaseAdapter {
 			holder.messageBody =  view.findViewById(R.id.message_body);
 			view.setTag(holder);
 
-			holder.name.setText(message.getSender().getName());
+			holder.name.setText(message.getSender());
 			holder.messageBody.setText(message.getContent());
 		}
 
