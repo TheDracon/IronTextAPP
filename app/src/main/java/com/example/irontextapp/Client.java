@@ -1,12 +1,16 @@
 package com.example.irontextapp;
 
+import com.example.irontextapp.Utils.Tuple2;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 public class Client {
@@ -37,6 +41,7 @@ public class Client {
     }
     public boolean isConnected(){
         if (socket != null){
+            if (socket.isClosed()) return false;
             return socket.isConnected();
         }
         return false;
@@ -49,6 +54,9 @@ public class Client {
     public void startConnection() {
         try {
             this.socket = new Socket(host, port);
+            output = new DataOutputStream(socket.getOutputStream());
+            input = new DataInputStream(socket.getInputStream());
+
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -73,7 +81,7 @@ public class Client {
 
     // Create account
 
-    public int passwordAuth(String email, String password){
+    public Tuple2<Integer, String> passwordAuth(String email, String password){
         try {
             output.writeInt(1);
             //email
@@ -83,15 +91,17 @@ public class Client {
 
             // You can see all codes iin AuthExitCodes.java
             int resultCode = input.readInt();
+            String newToken = input.readUTF();
 
             // If success...
             if (resultCode == 0){
                 isLoggedIn = true;
             }
-            return resultCode;
+            return new Tuple2<Integer, String>(resultCode, newToken);
         } catch (Exception e){
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        return new Tuple2<Integer, String>(-1, null);
     }
 
 
@@ -100,19 +110,27 @@ public class Client {
     public int registerAcc(String username, String email, String password){
         try {
             output.writeInt(2);
+            Thread.sleep(100);
             output.writeUTF(username);
+            Thread.sleep(100);
+
             //email
             output.writeUTF(email);
+            Thread.sleep(100);
+
             //password
             output.writeUTF(password);
+            Thread.sleep(100);
+
             int resultCode = input.readInt();
             try {
                 socket.close();
             } catch (Exception ingore){}
             return resultCode;
         } catch (Exception e){
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        return -1;
     }
 
 
