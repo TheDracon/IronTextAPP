@@ -2,9 +2,12 @@ package com.example.irontextapp.activities;
 
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.widget.Toast;
 import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,50 +37,48 @@ public class MainActivity extends AppCompatActivity {
 					WindowManager.LayoutParams.FLAG_FULLSCREEN
 			);
 		}
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-		Client client = new Client("localhost", 1235);
-		Main.setClient(client);
-		client.startConnection();
+		new Thread(()->{
+			Client client = new Client("192.168.1.23", 1252);
+			System.out.println("CONNECTED!");
+			client.startConnection();
+			Main.setClient(client);
+		}).start();
 
-
-
-		File file = new File(getBaseContext().getFilesDir(), "userdata.dat");
-		if (file.exists() && file.length() <= 1){
-			System.out.println("file does not exist or it's empty");
-
+		File file = new File(getBaseContext().getFilesDir(), "userDataB.dat");
+		if (!file.exists()){
 			// File does not exist, go to register acc
 			registeringNeeded();
 
 		} else{
-			String username = null;
+			String email = null;
 			String token = null;
 			try {
 				Scanner myReader = new Scanner(file);
-				username = myReader.nextLine();
+				email = myReader.nextLine();
 				try {
 					token = myReader.nextLine();
-				}catch (Exception ignore){}
+				}catch (Exception e){
+					e.printStackTrace();
+				}
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				e.printStackTrace();
 			}
 			if (token == null){
 				registeringNeeded();
 				return;
 			}
-			int resultCode = client.tokenAuth(token);
+			int resultCode = Main.getClient().tokenAuth(token);
 			if (resultCode == 0){
 				loggedIn();
 			} else {
 				loginNeeded();
 			}
 		}
+
 	}
 	public void registeringNeeded(){
-		// TODO: MAKE REGISTER ACTIVITY
+		Intent chatActivity = new Intent(this, RegisterActivity.class);
+		startActivity(chatActivity);
 	}
 	public void loginNeeded(){
 		// TODO: GO TO LOGGING
