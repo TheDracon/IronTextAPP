@@ -17,6 +17,8 @@ import java.util.Scanner;
 
 public class LoginActivity extends AppCompatActivity {
 
+	@Override public void onBackPressed(){/*Do nothing*/}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -26,7 +28,10 @@ public class LoginActivity extends AppCompatActivity {
 		Button loggin = findViewById(R.id.logInButton);
 		loggin.setOnClickListener(view ->{
 			new Thread(() -> {
+				// Allow toasts
 				Looper.prepare();
+
+
 				EditText emailInput = findViewById(R.id.emailInput);
 				EditText passwordInput = findViewById(R.id.passwordInput);
 				String email = emailInput.getText().toString();
@@ -34,13 +39,18 @@ public class LoginActivity extends AppCompatActivity {
 
 
 				//TODO: ADD PASSWORD AND EMAIL REGEX CHECK
-				if (!Main.getClient().isConnected()) {
-					Main.getClient().startConnection();
+				try {
+					if (!Main.getClient().isConnected()) {
+						Main.getClient().startConnection();
+					}
+					if (Main.getClient().isLoggedIn()) {
+						Main.getClient().closeConnection();
+						Main.getClient().startConnection();
+					}
+				} catch (Exception e){
+					sendErrorMessage("Could not connect to the server", 1);
 				}
-				if (Main.getClient().isLoggedIn()) {
-					Main.getClient().closeConnection();
-					Main.getClient().startConnection();
-				}
+
 				Tuple2<Integer, String> result = Main.getClient().passwordAuth(email, password);
 				int resultCode = result.getFirst();
 				String newToken = result.getSecond();

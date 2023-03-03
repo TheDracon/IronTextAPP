@@ -22,6 +22,8 @@ public class ChatActivity extends AppCompatActivity {
 	private MessageAdapter messageAdapter;
 	private ListView messagesView;
 
+	@Override public void onBackPressed(){/*Do nothing*/}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 

@@ -11,7 +11,7 @@ import com.example.irontextapp.Main;
 import com.example.irontextapp.R;
 
 public class RegisterActivity extends AppCompatActivity {
-
+	@Override public void onBackPressed(){/*Do nothing*/}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
