@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 	VideoView video;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		if (getSupportActionBar() != null) getSupportActionBar().hide();
