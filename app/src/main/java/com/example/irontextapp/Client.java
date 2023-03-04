@@ -1,6 +1,7 @@
 package com.example.irontextapp;
 
 import com.example.irontextapp.Utils.Tuple2;
+import com.example.irontextapp.activities.ChatActivity;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -19,6 +20,8 @@ public class Client {
     private final String host;
     private final int port;
     private Socket socket;
+    private Thread listenerThread;
+    private boolean isListening;
 
     private boolean isLoggedIn;
 
@@ -135,10 +138,10 @@ public class Client {
 
 
     // TO SEND THE DATA dataList
-    public void sendEvent(int requestType, Socket serverSocket, Object... dataList)  {
+    public void sendEvent(int requestType, Object... dataList)  {
         try {
-            DataOutputStream output = new DataOutputStream(serverSocket.getOutputStream());
             output.writeInt(requestType);
+            if (dataList.length == 0) return;
             for (Object data : dataList){
                 if (data instanceof String || data instanceof UUID){
                     output.writeUTF(data.toString());
@@ -162,29 +165,29 @@ public class Client {
         return host;
     }
     public void listenForPackets(){
-        new Thread(() ->{
-            while (true){
-                if (socket.isClosed()) break;
+        if (isListening){
+            throw new RuntimeException("Already listening for packages");
+        }
+        this.isListening = true;
+        listenerThread = new Thread(() ->{
+            while (!socket.isClosed() && !socket.isConnected() && isListening) {
                 try {
-                    DataInputStream input = new DataInputStream(socket.getInputStream());
-
                     // 0 = one new message | 1 = x new messages
                     int requestType = input.readInt();
-                    if (requestType == 0){
+                    if (requestType == 0) {
                         String message = input.readUTF();
                         String sender = input.readUTF();
                         long timestamp = input.readLong();
-                        Message newMessage = new Message(message, sender,(sender.equals(Main.getMyUsername())), timestamp);
+                        Message newMessage = new Message(message, sender, (sender.equals(Main.getMyUsername())), timestamp);
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String formattedDate = sdf.format(new Date(newMessage.getTimestamp()));
-                        System.out.println(" MESSAGE: '" +newMessage.getContent() +"' BY: '" + newMessage.getSender() + "' ON: " + formattedDate);
+                        System.out.println(" MESSAGE: '" + newMessage.getContent() + "' BY: '" + newMessage.getSender() + "' ON: " + formattedDate);
 
-
-
+                        ChatActivity.getMessageAdapter().addToStart(newMessage);
                         // Do something
 
-                    } else if (requestType == 1){
+                    } else if (requestType == 1) {
                         int amountOfRows = input.readInt();
                         ArrayList<Message> messages = new ArrayList<>();
                         for (int i = 0; i < amountOfRows; i++) {
@@ -194,16 +197,25 @@ public class Client {
                             Message currentMessage = new Message(content, sender, (sender.equals(Main.getMyUsername())), timestamp);
                             messages.add(currentMessage);
                         }
-                        for (Message message : messages){
+                        for (Message message : messages) {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             String formattedDate = sdf.format(new Date(message.getTimestamp()));
-                            System.out.println("MESSAGE: '" +message.getContent() +"' BY: '" + message.getSender() + "' ON: " + formattedDate);
+                            System.out.println("MESSAGE: '" + message.getContent() + "' BY: '" + message.getSender() + "' ON: " + formattedDate);
                         }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
+
+        });
+        listenerThread.start();
+    }
+
+    public void stopListening(){
+        listenerThread.interrupt();
+    }
+    public boolean isListening() {
+        return isListening;
     }
 }
