@@ -7,23 +7,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:screenOrientation="portrait"
-        tools:context=".activities.MainActivity">
+        tools:context=".activities.MainActivity" android:background="@color/colorBackground">
     <ListView
             android:layout_width="match_parent"
             android:id="@+id/messages_view"
             android:layout_weight="2"
+            android:transcriptMode="normal"
             android:divider="#fff"
-            android:layout_height="379dp"
-    >
+            android:layout_height="0dp">
     </ListView>
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="57dp">
+            android:layout_height="52dp">
         <EditText
                 android:layout_width="344dp"
                 android:backgroundTint="@color/colorPrimary"
-                android:layout_height="match_parent"
+                android:layout_height="75dp"
                 android:inputType="text"
                 android:hint="Mensaje"
                 android:paddingHorizontal="10dp"
@@ -33,9 +33,16 @@
                 android:id="@+id/editMessage" android:layout_weight="1"/>
         <ImageButton
                 android:backgroundTint="#ffffffff"
-                android:layout_width="65dp"
+                android:layout_width="67dp"
                 android:layout_height="match_parent" app:srcCompat="@drawable/baseline_send_24"
-                android:id="@+id/sendMessageBtn" android:layout_weight="1" android:contentDescription="Envia el mensaje"/>
+                android:id="@+id/sendMessageBtn" android:layout_weight="1"
+                android:contentDescription="Envia el mensaje"/>
     </LinearLayout>
-
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorBackground"
+            app:titleTextColor="@color/white"
+            android:layout_marginTop="20dp"/>
 </LinearLayout>
