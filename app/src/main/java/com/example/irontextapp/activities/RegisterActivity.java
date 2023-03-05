@@ -47,25 +47,35 @@ public class RegisterActivity extends AppCompatActivity {
 					System.out.println("RESULT CODE:" + resultCode);
 
 					switch(resultCode){
-						case 201:{
+						case 201:
 							sendErrorMessage("Invalid password, password must contain at least 8 characters with numbers, capital and lowercase letters", 1);
-						}
-						case 301:{
+							break;
+
+						case 301:
 							sendErrorMessage("Invalid Email", 1);
-						}
-						case 302:{
+							break;
+
+
+						case 302:
 							sendErrorMessage("Email already registered", 1);
-						}
-						case 400:{
+							break;
+
+						case 400:
 							sendErrorMessage("Invalid username", 1);
-						}
-						case 401:{
+							break;
+
+						case 401:
 							sendErrorMessage("Invalid username", 1);
-						}
-						case 0:{
+							break;
+
+						case 0:
 							sendErrorMessage("Succsess", 1);
+
+							//TODO: GUARD THE USERNAME AND EMAIL
+
 							goToLogin();
-						}
+							break;
+
 					}
 				}
 			}).start();
