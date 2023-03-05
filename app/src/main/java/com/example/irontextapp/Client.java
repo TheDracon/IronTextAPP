@@ -1,13 +1,17 @@
 package com.example.irontextapp;
 
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 import com.example.irontextapp.Utils.Tuple2;
 import com.example.irontextapp.activities.ChatActivity;
+import com.example.irontextapp.activities.LoginActivity;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,19 +63,20 @@ public class Client {
             this.socket = new Socket(host, port);
             output = new DataOutputStream(socket.getOutputStream());
             input = new DataInputStream(socket.getInputStream());
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+        } catch (Exception ignore){}
     }
 
 
     // Authenticates using token
-    public int tokenAuth(String token) {
+    public int tokenAuth(String email, String token) {
+        System.out.println("token auth");
         try {
             output.writeInt(0);
+            output.writeUTF(email);
             output.writeUTF(token);
+            System.out.println("a");
             int resultCode = input.readInt();
+            System.out.println(resultCode);
             if (resultCode == 0){
                 isLoggedIn = true;
             }
@@ -84,27 +89,28 @@ public class Client {
 
     // Create account
 
-    public Tuple2<Integer, String> passwordAuth(String email, String password){
+    public Tuple2<Integer, Tuple2<String, String>> passwordAuth(String email, String password){
         try {
             output.writeInt(1);
             //email
             output.writeUTF(email);
             //password
             output.writeUTF(password);
-
+            System.out.println("ABC");
             // You can see all codes iin AuthExitCodes.java
             int resultCode = input.readInt();
             String newToken = input.readUTF();
-
+            String username = input.readUTF();
+            System.out.println("ABC");
             // If success...
             if (resultCode == 0){
                 isLoggedIn = true;
             }
-            return new Tuple2<Integer, String>(resultCode, newToken);
+            return new Tuple2<>(resultCode, new Tuple2<>(newToken, username));
         } catch (Exception e){
             e.printStackTrace();
         }
-        return new Tuple2<Integer, String>(-1, null);
+        return new Tuple2<>(-1, null);
     }
 
 
@@ -141,7 +147,10 @@ public class Client {
     public void sendEvent(int requestType, Object... dataList)  {
         try {
             output.writeInt(requestType);
-            if (dataList.length == 0) return;
+            if (dataList.length == 0) {
+                System.out.println("length 0 ");
+                return;
+            }
             for (Object data : dataList){
                 if (data instanceof String || data instanceof UUID){
                     output.writeUTF(data.toString());
@@ -164,52 +173,62 @@ public class Client {
     public String getHost() {
         return host;
     }
-    public void listenForPackets(){
+    public void listenForPackets(AppCompatActivity appActivity){
         if (isListening){
-            throw new RuntimeException("Already listening for packages");
+            System.out.println("Already listening");
+            return;
         }
         this.isListening = true;
         listenerThread = new Thread(() ->{
-            while (!socket.isClosed() && !socket.isConnected() && isListening) {
+            while (!socket.isClosed() && socket.isConnected() && isListening) {
                 try {
                     // 0 = one new message | 1 = x new messages
                     int requestType = input.readInt();
-                    if (requestType == 0) {
+                    System.out.println("REQTYPE:" + requestType);
+
+                    System.out.println(requestType);
+                    if (requestType == 3){
+                        Toast.makeText(ChatActivity.getMessageAdapter().context, "You got disconnected", Toast.LENGTH_LONG).show();
+                    } else if (requestType == 0) {
                         String message = input.readUTF();
                         String sender = input.readUTF();
                         long timestamp = input.readLong();
-                        Message newMessage = new Message(message, sender, (sender.equals(Main.getMyUsername())), timestamp);
+                        Message newMessage = new Message(message, sender, (sender.equals(UserDataManager.getUsername())), timestamp);
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        String formattedDate = sdf.format(new Date(newMessage.getTimestamp()));
-                        System.out.println(" MESSAGE: '" + newMessage.getContent() + "' BY: '" + newMessage.getSender() + "' ON: " + formattedDate);
+                        String formattedDate = sdf.format(new Date(timestamp));
+                        System.out.println(" MESSAGE: '" + message + "' BY: '" + sender + "' ON: " + formattedDate);
 
-                        ChatActivity.getMessageAdapter().addToStart(newMessage);
-                        // Do something
+                        ChatActivity.getMessageAdapter().add(newMessage, appActivity);
 
                     } else if (requestType == 1) {
                         int amountOfRows = input.readInt();
-                        ArrayList<Message> messages = new ArrayList<>();
+                        System.out.println("AMM: " + amountOfRows);
                         for (int i = 0; i < amountOfRows; i++) {
                             String content = input.readUTF();
                             String sender = input.readUTF();
                             long timestamp = input.readLong();
-                            Message currentMessage = new Message(content, sender, (sender.equals(Main.getMyUsername())), timestamp);
-                            messages.add(currentMessage);
-                        }
-                        for (Message message : messages) {
+                            if (sender.equals(UserDataManager.getUsername())) continue;
+                            System.out.println(content);
+                            Message currentMessage = new Message(content, sender, (sender.equals(UserDataManager.getUsername())), timestamp);
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String formattedDate = sdf.format(new Date(message.getTimestamp()));
-                            System.out.println("MESSAGE: '" + message.getContent() + "' BY: '" + message.getSender() + "' ON: " + formattedDate);
+                            String formattedDate = sdf.format(new Date(currentMessage.getTimestamp()));
+                            System.out.println("MESSAGE: '" + currentMessage.getContent() + "' BY: '" + currentMessage.getSender() + "' ON: " + formattedDate);
+                            ChatActivity.getMessageAdapter().add(currentMessage, appActivity);
                         }
+
                     }
+                }  catch (SocketException e){
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    break;
                 }
             }
-
         });
         listenerThread.start();
+        System.out.println("LISTENING...");
+
     }
 
     public void stopListening(){
@@ -218,4 +237,5 @@ public class Client {
     public boolean isListening() {
         return isListening;
     }
+
 }
