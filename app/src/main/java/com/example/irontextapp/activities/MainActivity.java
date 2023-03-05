@@ -11,19 +11,16 @@ import android.widget.Toast;
 import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import com.example.irontextapp.Client;
-import com.example.irontextapp.Main;
-import com.example.irontextapp.R;
+import com.example.irontextapp.*;
 
 import java.io.*;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
-	VideoView video;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
+		UserDataManager.init(this);
 		setContentView(R.layout.activity_main);
 		if (getSupportActionBar() != null) getSupportActionBar().hide();
 
@@ -38,43 +35,47 @@ public class MainActivity extends AppCompatActivity {
 					WindowManager.LayoutParams.FLAG_FULLSCREEN
 			);
 		}
-		new Thread(()->{
-			Client client = new Client("192.168.1.23", 1252);
-			System.out.println("CONNECTED!");
-			client.startConnection();
-			Main.setClient(client);
+		new Thread(() ->{
+			connectToTheServer();
+
+			if (!UserDataManager.doesFileExists()){
+				System.out.println("FILE DOES NOT EXIST");
+				// File does not exist, go to register acc
+				registeringNeeded();
+			} else{
+				System.out.println("FILE EXISTS");
+
+				String token = UserDataManager.getToken();
+				String email = UserDataManager.getEmail();
+				if (token == null){
+					System.out.println("token is null");
+					registeringNeeded();
+					return;
+				}
+				System.out.println("EMAIL: " + email);
+				System.out.println("token: " + token);
+				int resultCode = Main.getClient().tokenAuth(email, token);
+				System.out.println("result code: " + resultCode);
+				if (resultCode == 0 || resultCode == 500){
+					loggedIn();
+				} else {
+					Main.getClient().closeConnection();
+					connectToTheServer();
+					loginNeeded();
+				}
+			}
 		}).start();
 
-		File file = new File(getBaseContext().getFilesDir(), "userDataB.dat");
-		if (!file.exists()){
-			// File does not exist, go to register acc
-			registeringNeeded();
+	}
+	public void connectToTheServer(){
+		Client client = new Client("188.79.140.63", 52216);
+		while (!client.isConnected()) {
+			client.startConnection();
+			System.out.println("TRYING!");
 
-		} else{
-			String email = null;
-			String token = null;
-			try {
-				Scanner myReader = new Scanner(file);
-				email = myReader.nextLine();
-				try {
-					token = myReader.nextLine();
-				}catch (Exception e){
-					e.printStackTrace();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			if (token == null){
-				registeringNeeded();
-				return;
-			}
-			int resultCode = Main.getClient().tokenAuth(token);
-			if (resultCode == 0){
-				loggedIn();
-			} else {
-				loginNeeded();
-			}
 		}
+		System.out.println("CONNECTED!");
+		Main.setClient(client);
 
 	}
 	public void registeringNeeded(){
