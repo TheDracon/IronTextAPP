@@ -8,9 +8,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import com.example.irontextapp.activities.ChatActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MessageAdapter extends BaseAdapter {
 
@@ -19,45 +22,43 @@ public class MessageAdapter extends BaseAdapter {
 	Context context;
 
 	public MessageAdapter(Context context){
-		Message message = new Message("content1", "Juan", false, 100);
-		Message message1 = new Message("content1","Mario", false, 100);
-		Message message2 = new Message("content1", "Tu", true, 100);
-		Message message3 = new Message("content1asdasd \n asdnaksg \na sidias\n aishgiibiaiisgfb81 \n aisgcuiagsiid \n", "Alvaro", false, 100);
-		Message message4 = new Message("content1asdasd \n asdnaksg \na sidias\n aishgiibiaiisgfb81 \n aisgcuiagsiid \n", "Joel", false, 100);
-
-		Message message5 = new Message("content1", "Víctor", false, 100);
-		Message message6 = new Message("soy gay", "un gay", false, 100);
-		Message message7 = new Message("content1", "Lucas", false, 100);
-		Message message8 = new Message("content1", "IdkMen", false, 100);
-
-		messages.add(message);
-		messages.add(message1);
-		messages.add(message2);
-		messages.add(message3);
-		messages.add(message4);
-		messages.add(message5);
-		messages.add(message6);
-		messages.add(message7);
-		messages.add(message8);
-
 		this.context = context;
 	}
 
 
-	public void add(Message message){
+	public void add(Message message, AppCompatActivity a){
 		this.messages.add(message);
-		notifyDataSetChanged();
+
+		a.runOnUiThread(() -> {
+			ListView listView = a.findViewById(R.id.messages_view);
+			listView.smoothScrollToPosition(getCount());
+			notifyDataSetChanged();
+		});
+
 	}
 
 
-	public void addToStart(Message message) {
-		// Shift all elements to the right by one slot
-		for (int i = messages.size() - 1; i >= 0; i--) {
-			messages.set(i + 1, messages.get(i));
+	public void addToStart(Message message, AppCompatActivity a) {
+
+		if (Objects.equals(message.getSender(), UserDataManager.getUsername())){
+			message.setMine(true);
 		}
-		// Add the new item to the first slot
-		messages.set(0, message);
-		notifyDataSetChanged();
+		// Shift all elements to the right by one slot
+		if (!messages.isEmpty()){
+			messages.add(message);
+			for (int i = messages.size() - 1; i >= 0; i--) {
+				if (i == messages.size()-1) continue;
+				messages.set(i + 1, messages.get(i));
+			}
+			messages.set(0, message);
+			a.runOnUiThread(() -> {
+				ListView listView = a.findViewById(R.id.messages_view);
+				listView.smoothScrollToPosition(getCount());
+				notifyDataSetChanged();
+			});
+		} else {
+			add(message, a);
+		}
 	}
 	@Override
 	public int getCount() {

@@ -2,10 +2,9 @@ package com.example.irontextapp;
 
 public class Message {
 
-
 	private final String content;
 	private final String sender;
-	private final boolean isMine;
+	private boolean isMine;
 	private final long timestamp;
 
 	public Message(String content, String sender, boolean isMine, long timestamp){
@@ -27,6 +26,10 @@ public class Message {
 	public boolean isMine() {
 		return isMine;
 	}
+	public void setMine(boolean isMine) {
+		this.isMine = isMine;
+	}
+
 
 	public long getTimestamp() {
 		return timestamp;
