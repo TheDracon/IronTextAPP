@@ -24,7 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Usuario\AppData\Local\Temp\ic_android_black_24dp.xml" />
+                                                <entry key="imagePath" value="/tmp/ic_android_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -67,7 +67,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="imagePath" value="C:\Users\Usuario\AppData\Local\Temp\ic_android_black_24dp.xml" />
+                                                <entry key="imagePath" value="/tmp/ic_android_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -79,7 +79,8 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="D:\MisCosas\IronText.png" />
+                                                <entry key="imagePath" value="$USER_HOME$/Downloads/image.png" />
+                                                <entry key="scalingPercent" value="105" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -112,6 +113,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="outputName" value="logo" />
+                                      <entry key="previewDensity" value="HIGH" />
+                                      <entry key="showGrid" value="true" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -128,7 +131,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Usuario\AppData\Local\Temp\ic_android_black_24dp.xml" />
+                                                <entry key="imagePath" value="/tmp/ic_android_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -172,7 +175,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Usuario\AppData\Local\Temp\ic_android_black_24dp.xml" />
+                                                <entry key="imagePath" value="/tmp/ic_android_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -236,7 +239,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="imagePath" value="C:\Users\Usuario\AppData\Local\Temp\ic_android_black_24dp.xml" />
+                                                <entry key="imagePath" value="/tmp/ic_android_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -277,6 +280,12 @@
                                       </entry>
                                     </map>
                                   </option>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="previewDensity" value="HIGH" />
+                                      <entry key="showGrid" value="true" />
+                                    </map>
+                                  </option>
                                 </PersistentState>
                               </value>
                             </entry>
@@ -305,7 +314,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/send/baseline_send_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/.local/share/JetBrains/Toolbox/apps/IDEA-C/ch-0/android-studio/android-sdk/icons/material/materialicons/brightness_1/baseline_brightness_1_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -315,8 +324,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="baseline_send_24" />
-                            <entry key="sourceFile" value="C:\Users\Usuario\IdeaProjects\IronTextAPP" />
+                            <entry key="color" value="e6ff01" />
+                            <entry key="outputName" value="baseline_brightness_1_24" />
+                            <entry key="sourceFile" value="$USER_HOME$/C:\Users\Usuario\IdeaProjects\IronTextAPP" />
                           </map>
                         </option>
                       </PersistentState>
