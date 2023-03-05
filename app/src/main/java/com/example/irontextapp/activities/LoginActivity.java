@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.example.irontextapp.Main;
 import com.example.irontextapp.R;
+import com.example.irontextapp.UserDataManager;
 import com.example.irontextapp.Utils.Tuple2;
 
 import java.io.IOException;
@@ -36,10 +37,13 @@ public class LoginActivity extends AppCompatActivity {
 				EditText passwordInput = findViewById(R.id.passwordInput);
 				String email = emailInput.getText().toString();
 				String password = passwordInput.getText().toString();
-
+				System.out.println("EMAIL :" + email);
 
 				//TODO: ADD PASSWORD AND EMAIL REGEX CHECK
 				try {
+					System.out.println("IS CONNECTED: " + Main.getClient().isConnected());
+					System.out.println("IS LOGGED: " + Main.getClient().isLoggedIn());
+
 					if (!Main.getClient().isConnected()) {
 						Main.getClient().startConnection();
 					}
@@ -48,14 +52,22 @@ public class LoginActivity extends AppCompatActivity {
 						Main.getClient().startConnection();
 					}
 				} catch (Exception e){
+					e.printStackTrace();
 					sendErrorMessage("Could not connect to the server", 1);
 				}
 
-				Tuple2<Integer, String> result = Main.getClient().passwordAuth(email, password);
+				Tuple2<Integer, Tuple2<String, String>> result = Main.getClient().passwordAuth(email, password);
 				int resultCode = result.getFirst();
-				String newToken = result.getSecond();
+				String newToken = result.getSecond().getFirst();
+				String username = result.getSecond().getSecond();
+				System.out.println("RESULT CODE: " + resultCode);
+				System.out.println("USERNAME: " + username);
+				System.out.println("newToken: " + newToken);
+
+
 				if (newToken!= null){
 					//TODO: MAKE TOKEN WORK
+					UserDataManager.setValues(newToken, email, username);
 				}
 				switch (resultCode){
 					case -1 :
